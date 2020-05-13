@@ -2,18 +2,22 @@ version: 2.1
 orbs:
   node: circleci/node@1.1.6
 jobs:
-  build-and-test:
+  build:
     executor:
       name: node/default
     steps:
-      - checkout
-      - node/with-cache:
-          steps:
-            - run: npm install
-            - run: npm test
-            - run: echo "Hello Tsuyoshi!!"
-            - run: echo "Hello Tsuyoshi Again!!"
+       - run: echo build step
+       - run: exit 1
+  test:
+    executor:
+      name: node/default
+    steps:
+      - run: echo test step
+
 workflows:
     build-and-test:
       jobs:
-        - build-and-test
+        - build
+        - test:
+            requires:
+              - build
