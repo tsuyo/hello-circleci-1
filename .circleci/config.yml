@@ -13,6 +13,12 @@ jobs:
     steps:
       - run: echo test step
 
+  deploy:
+    executor:
+      name: node/default
+    steps:
+      - run: echo deploy step
+    
 workflows:
     build-and-test:
       jobs:
@@ -20,3 +26,6 @@ workflows:
         - test:
             requires:
               - build
+        - deploy:
+            requires:
+              - test
