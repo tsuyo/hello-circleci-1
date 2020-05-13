@@ -2,16 +2,33 @@ version: 2.1
 orbs:
   node: circleci/node@1.1.6
 jobs:
-  build:
+  build-frontend:
     executor:
       name: node/default
     steps:
-       - run: echo build step
-  test:
+       - run: echo build-frontend step
+  build-backend:
     executor:
       name: node/default
     steps:
-      - run: echo test step
+       - run: echo build-backend step
+  
+  test-frontend:
+    executor:
+      name: node/default
+    steps:
+      - run: echo test-frontend step
+  test-backend:
+    executor:
+      name: node/default
+    steps:
+      - run: echo test-backend step
+
+  integration-tests:
+    executor:
+      name: node/default
+    steps:
+      - run: echo integration-tests step
 
   deploy:
     executor:
@@ -22,10 +39,20 @@ jobs:
 workflows:
     build-and-test:
       jobs:
-        - build
-        - test:
+        - build-frontend
+        - build-backend
+        - test-frontend:
             requires:
-              - build
+              - build-frontend
+        - test-backend:
+            requires:
+              - build-backend
+        - integration-tests:
+            requires:
+              - build-frontend
+              - build-backend              
         - deploy:
             requires:
-              - test
+              - test-frontend
+              - test-backend
+              - integration-tests
