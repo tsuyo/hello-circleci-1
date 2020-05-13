@@ -2,57 +2,64 @@ version: 2.1
 orbs:
   node: circleci/node@1.1.6
 jobs:
-  build-frontend:
+  build:
     executor:
       name: node/default
+    working_directory: ~/repo
     steps:
-       - run: echo build-frontend step
-  build-backend:
-    executor:
-      name: node/default
-    steps:
-       - run: echo build-backend step
+      - run: echo build step
+      - run: mkdir build_output
+      - run: touch build_output/compiled_output.txt
+      - persist_to_workspace:
+          root: build_output
+          paths:
+            - '*'
+
+  # build-backend:
+  #   executor:
+  #     name: node/default
+  #   steps:
+  #      - run: echo build-backend step
   
-  test-frontend:
+  test:
     executor:
       name: node/default
+    working_directory: ~/repo
     steps:
       - run: echo test-frontend step
-  test-backend:
-    executor:
-      name: node/default
-    steps:
-      - run: echo test-backend step
+      - attach_workspace:
+          at: ~/repo/workspace
+      - run: ls ~/repo/workspace/compiled_output.txt
+          
+  # test-backend:
+  #   executor:
+  #     name: node/default
+  #   steps:
+  #     - run: echo test-backend step
 
-  integration-tests:
-    executor:
-      name: node/default
-    steps:
-      - run: echo integration-tests step
+  # integration-tests:
+  #   executor:
+  #     name: node/default
+  #   steps:
+  #     - run: echo integration-tests step
 
   deploy:
     executor:
       name: node/default
+    working_directory: ~/repo
     steps:
       - run: echo deploy step
+      - attach_workspace:
+          at: ~/repo/workspace
+      - run: ls ~/repo/workspace/compiled_output.txt
     
 workflows:
     build-and-test:
       jobs:
-        - build-frontend
-        - build-backend
-        - test-frontend:
+        - build
+        - test:
             requires:
-              - build-frontend
-        - test-backend:
-            requires:
-              - build-backend
-        - integration-tests:
-            requires:
-              - build-frontend
-              - build-backend              
+              - build
         - deploy:
             requires:
-              - test-frontend
-              - test-backend
-              - integration-tests
+              - test
